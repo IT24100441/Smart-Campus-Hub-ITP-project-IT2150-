@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Study Spot Finder — Campus Room Availability</title>
+    <meta name="description"
+        content="Find the perfect study spot on campus with real-time room availability, live condition monitoring, and easy booking." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        /* ===== CSS VARIABLES & DESIGN TOKENS ===== */
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-card-hover: rgba(30, 41, 59, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --bg-glass-hover: rgba(255, 255, 255, 0.08);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-blue-glow: rgba(59, 130, 246, 0.3);
+            --accent-cyan: #06b6d4;
+            --accent-cyan-glow: rgba(6, 182, 212, 0.25);
+            --accent-emerald: #10b981;
+            --accent-emerald-glow: rgba(16, 185, 129, 0.25);
+            --accent-amber: #f59e0b;
+            --accent-amber-glow: rgba(245, 158, 11, 0.25);
+            --accent-rose: #f43f5e;
+            --accent-rose-glow: rgba(244, 63, 94, 0.25);
+            --accent-violet: #8b5cf6;
+            --accent-violet-glow: rgba(139, 92, 246, 0.25);
+            --gradient-hero: linear-gradient(135deg, #0a0e1a 0%, #1a1040 40%, #0f172a 100%);
+            --gradient-accent: linear-gradient(135deg, #3b82f6, #06b6d4);
+            --border-color: rgba(148, 163, 184, 0.1);
+            --border-glow: rgba(59, 130, 246, 0.3);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px var(--accent-blue-glow);
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: var(--radius-full);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 14, 26, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition-base);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .navbar-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .navbar-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.3px;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .navbar-links li a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            transition: var(--transition-base);
+            position: relative;
+        }
+
+        .navbar-links li a:hover,
+        .navbar-links li a.active {
+            color: var(--text-primary);
+            background: var(--bg-glass-hover);
+        }
+
+        .navbar-links li a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: var(--gradient-accent);
+            border-radius: var(--radius-full);
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+            padding: 120px 40px 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+            animation: aurora 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes aurora {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(-2%, 1%) rotate(1deg);
+            }
+
+            100% {
+                transform: translate(1%, -1%) rotate(-1deg);
+            }
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: var(--radius-full);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-cyan);
+            margin-bottom: 28px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 var(--accent-emerald-glow);
+            }
+
+            50% {
+                opacity: 0.7;
+                box-shadow: 0 0 0 8px transparent;
+            }
+        }
+
+        .hero-title {
+            font-size: clamp(40px, 6vw, 72px);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .hero-title .gradient-text {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: var(--radius-full);
+            font-size: 15px;
+            font-weight: 600;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: var(--transition-base);
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px var(--accent-blue-glow), var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-glass-hover);
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+        }
+
+        /* STATS ROW */
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 64px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* SECTION */
+        .section {
+            padding: 100px 40px;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* CAMPUS MAP */
+        .campus-map-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .map-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .map-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .map-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .map-legend {
+            display: flex;
+            gap: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.available {
+            background: var(--accent-emerald);
+        }
+
+        .legend-dot.moderate {
+            background: var(--accent-amber);
+        }
+
+        .legend-dot.busy {
+            background: var(--accent-rose);
+        }
+
+        .campus-svg-area {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .campus-svg-area svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .building {
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+
+        .building:hover {
+            filter: brightness(1.3);
+        }
+
+        .building-fill {
+            transition: var(--transition-base);
+        }
+
+        .building-label {
+            font-family: var(--font-family);
+            font-size: 10px;
+            font-weight: 600;
+            fill: #fff;
+            pointer-events: none;
+            text-anchor: middle;
+        }
+
+        .building-marker {
+            animation: pulse-marker 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-marker {
+
+            0%,
+            100% {
+                r: 6;
+                opacity: 1;
+            }
+
+            50% {
+                r: 9;
+                opacity: 0.6;
+            }
+        }
+
+        /* Room cards */
+        .map-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .room-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            cursor: pointer;
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .room-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .room-card.available::before {
+            background: var(--accent-emerald);
+        }
+
+        .room-card.moderate::before {
+            background: var(--accent-amber);
+        }
+
+        .room-card.busy::before {
+            background: var(--accent-rose);
+        }
+
+        .room-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-glow);
+            transform: translateX(-4px);
+        }
+
+        .room-card.selected {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px var(--accent-blue-glow);
+        }
+
+        .room-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .room-name {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .room-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .room-status.available {
+            color: var(--accent-emerald);
+            background: var(--accent-emerald-glow);
+        }
+
+        .room-status.moderate {
+            color: var(--accent-amber);
+            background: var(--accent-amber-glow);
+        }
+
+        .room-status.busy {
+            color: var(--accent-rose);
+            background: var(--accent-rose-glow);
+        }
+
+        .room-building {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .room-meta {
+            display: flex;
+            gap: 16px;
+        }
+
+        .room-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* CONDITIONS */
+        .conditions-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        .condition-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            transition: var(--transition-base);
+            backdrop-filter: blur(10px);
+        }
+
+        .condition-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .condition-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .condition-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .condition-icon-wrapper.temp {
+            background: var(--accent-amber-glow);
+            color: var(--accent-amber);
+        }
+
+        .condition-icon-wrapper.noise {
+            background: var(--accent-violet-glow);
+            color: var(--accent-violet);
+        }
+
+        .condition-icon-wrapper.occupancy {
+            background: var(--accent-cyan-glow);
+            color: var(--accent-cyan);
+        }
+
+        .condition-live-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-emerald);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .condition-live-tag .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        .condition-value {
+            font-size: 42px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 4px;
+            letter-spacing: -1px;
+        }
+
+        .condition-value.temp {
+            color: var(--accent-amber);
+        }
+
+        .condition-value.noise {
+            color: var(--accent-violet);
+        }
+
+        .condition-value.occupancy {
+            color: var(--accent-cyan);
+        }
+
+        .condition-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .gauge-bar {
+            width: 100%;
+            height: 6px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            border-radius: var(--radius-full);
+            transition: width 1s ease;
+        }
+
+        .gauge-fill.temp {
+            background: linear-gradient(90deg, var(--accent-emerald), var(--accent-amber));
+        }
+
+        .gauge-fill.noise {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-violet));
+        }
+
+        .gauge-fill.occupancy {
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-rose));
+        }
+
+        .gauge-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* FOOTER */
+        .footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .campus-map-container {
+                grid-template-columns: 1fr;
+            }
+
+            .map-sidebar {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                max-height: unset;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 12px 20px;
+            }
+
+            .navbar-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 100px 20px 60px;
+            }
+
+            .section {
+                padding: 60px 20px;
+            }
+
+            .stats-row {
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .map-sidebar {
+                grid-template-columns: 1fr;
+            }
+
+            .conditions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+
+        /* ===== MOCK DATA ===== */
+        const BUILDINGS = [
+            { id: 'lib', name: 'Central Library', x: 180, y: 120, w: 120, h: 70 },
+            { id: 'sci', name: 'Science Block', x: 380, y: 80, w: 100, h: 60 },
+            { id: 'eng', name: 'Engineering Hall', x: 550, y: 150, w: 110, h: 65 },
+            { id: 'art', name: 'Arts Center', x: 140, y: 260, w: 90, h: 55 },
+            { id: 'cs', name: 'CS Building', x: 350, y: 230, w: 100, h: 60 },
+            { id: 'bus', name: 'Business School', x: 530, y: 290, w: 105, h: 55 },
+        ];
+
+        const ROOMS = [
+            { id: 1, name: 'Quiet Zone A', building: 'Central Library', floor: '2nd Floor', status: 'available', capacity: 30, currentOccupancy: 8, temp: 22, noise: 15 },
+            { id: 2, name: 'Lab 204', building: 'CS Building', floor: '2nd Floor', status: 'moderate', capacity: 40, currentOccupancy: 28, temp: 24, noise: 45 },
+            { id: 3, name: 'Study Hall B', building: 'Science Block', floor: '1st Floor', status: 'available', capacity: 50, currentOccupancy: 12, temp: 21, noise: 20 },
+            { id: 4, name: 'Seminar Room 3', building: 'Engineering Hall', floor: '3rd Floor', status: 'busy', capacity: 25, currentOccupancy: 24, temp: 26, noise: 65 },
+            { id: 5, name: 'Discussion Pod C', building: 'Arts Center', floor: '1st Floor', status: 'available', capacity: 8, currentOccupancy: 2, temp: 22, noise: 10 },
+            { id: 6, name: 'Lecture Hall 101', building: 'Business School', floor: 'Ground Floor', status: 'busy', capacity: 120, currentOccupancy: 115, temp: 27, noise: 70 },
+        ];
+
+        /* ===== SVG ICONS ===== */
+        const ThermIcon = () => (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+            </svg>
+        );
+        const VolIcon = () => (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+        );
+        const UsersIcon = () => (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+        );
+        const SearchIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+        );
+        const CalIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+        );
+
+        /* ===== NAVBAR ===== */
+        function Navbar({ activeSection }) {
+            const [scrolled, setScrolled] = useState(false);
+            useEffect(() => {
+                const handleScroll = () => setScrolled(window.scrollY > 40);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            return (
+                <nav className="navbar" id="main-navbar" style={scrolled ? { padding: '10px 40px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' } : {}}>
+                    <a href="#" className="navbar-brand">
+                        <div className="navbar-logo">S</div>
+                        <span className="navbar-title">StudySpot</span>
+                    </a>
+                    <ul className="navbar-links">
+                        {['hero', 'map', 'conditions'].map(s => (
+                            <li key={s}>
+                                <a href={'#' + s} className={activeSection === s ? 'active' : ''}>
+                                    {s === 'hero' ? 'Home' : s === 'map' ? 'Campus Map' : 'Live Status'}
+                                </a>
+                            </li>
+                        ))}
+                        <li><a href="#conditions" style={{ background: 'var(--gradient-accent)', color: '#fff', borderRadius: 'var(--radius-full)', padding: '8px 20px', fontSize: '13px' }}>Book Room</a></li>
+                    </ul>
+                </nav>
+            );
+        }
+
+        /* ===== HERO ===== */
+        function HeroSection() {
+            return (
+                <section className="hero" id="hero">
+                    <div className="hero-content">
+                        <div className="hero-badge">
+                            <span className="dot"></span>
+                            Live Campus Monitoring
+                        </div>
+                        <h1 className="hero-title">
+                            Find Your Perfect<br />
+                            <span className="gradient-text">Study Spot</span>
+                        </h1>
+                        <p className="hero-subtitle">
+                            Real-time room availability, live condition monitoring, and instant booking — all in one place. Never waste time searching for a study space again.
+                        </p>
+                        <div className="hero-actions">
+                            <a href="#map" className="btn btn-primary"><SearchIcon /> Explore Campus</a>
+                            <a href="#conditions" className="btn btn-secondary"><CalIcon /> Book a Room</a>
+                        </div>
+                        <div className="stats-row">
+                            {[{ n: '24', l: 'Study Rooms' }, { n: '6', l: 'Buildings' }, { n: '142', l: 'Spots Open' }, { n: '98%', l: 'Satisfaction' }].map(s => (
+                                <div className="stat-item" key={s.l}>
+                                    <div className="stat-number">{s.n}</div>
+                                    <div className="stat-label">{s.l}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        /* ===== CAMPUS MAP ===== */
+        function CampusMap() {
+            const [selectedRoom, setSelectedRoom] = useState(null);
+            const [hoveredBuilding, setHoveredBuilding] = useState(null);
+
+            const getBuildingColor = (id) => {
+                const bld = BUILDINGS.find(b => b.id === id);
+                const room = ROOMS.find(r => bld && r.building === bld.name);
+                if (!room) return '#334155';
+                if (room.status === 'available') return '#10b981';
+                if (room.status === 'moderate') return '#f59e0b';
+                return '#f43f5e';
+            };
+
+            return (
+                <section className="section" id="map" style={{ background: 'linear-gradient(180deg, var(--bg-primary) 0%, #0d1225 100%)' }}>
+                    <div className="section-header">
+                        <div className="section-tag">📍 Campus Map</div>
+                        <h2 className="section-title">Interactive Room Finder</h2>
+                        <p className="section-subtitle">Click on any building to see available rooms. Green = open, amber = filling, red = full.</p>
+                    </div>
+                    <div className="campus-map-container">
+                        <div className="map-wrapper">
+                            <div className="map-header">
+                                <h3>🏫 Campus Overview</h3>
+                                <div className="map-legend">
+                                    <div className="legend-item"><span className="legend-dot available"></span> Available</div>
+                                    <div className="legend-item"><span className="legend-dot moderate"></span> Filling Up</div>
+                                    <div className="legend-item"><span className="legend-dot busy"></span> Full</div>
+                                </div>
+                            </div>
+                            <div className="campus-svg-area">
+                                <svg viewBox="0 0 760 400" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148,163,184,0.05)" strokeWidth="1" />
+                                        </pattern>
+                                    </defs>
+                                    <rect width="760" height="400" fill="url(#grid)" />
+                                    <path d="M 0 200 Q 200 180, 400 200 Q 600 220, 760 200" stroke="rgba(148,163,184,0.12)" strokeWidth="24" fill="none" strokeLinecap="round" />
+                                    <path d="M 300 0 Q 320 200, 300 400" stroke="rgba(148,163,184,0.08)" strokeWidth="18" fill="none" strokeLinecap="round" />
+                                    <path d="M 500 0 Q 480 200, 500 400" stroke="rgba(148,163,184,0.08)" strokeWidth="18" fill="none" strokeLinecap="round" />
+                                    {[{ x: 80, y: 60 }, { x: 300, y: 160 }, { x: 460, y: 340 }, { x: 680, y: 80 }, { x: 100, y: 350 }, { x: 650, y: 360 }, { x: 420, y: 140 }].map((t, i) => (
+                                        <circle key={i} cx={t.x} cy={t.y} r="8" fill="rgba(16,185,129,0.15)" />
+                                    ))}
+                                    {BUILDINGS.map(b => {
+                                        const color = getBuildingColor(b.id);
+                                        const isH = hoveredBuilding === b.id;
+                                        return (
+                                            <g key={b.id} className="building"
+                                                onMouseEnter={() => setHoveredBuilding(b.id)}
+                                                onMouseLeave={() => setHoveredBuilding(null)}
+                                                onClick={() => { const room = ROOMS.find(r => r.building === b.name); if (room) setSelectedRoom(room.id); }}
+                                            >
+                                                <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="6" ry="6"
+                                                    fill={color} fillOpacity={isH ? 0.35 : 0.2}
+                                                    stroke={color} strokeWidth={isH ? 2 : 1} strokeOpacity={isH ? 0.9 : 0.5}
+                                                />
+                                                <text x={b.x + b.w / 2} y={b.y + b.h / 2 + 4} className="building-label">
+                                                    {b.name.split(' ').map(w => w[0]).join('')}
+                                                </text>
+                                                <circle cx={b.x + b.w - 10} cy={b.y + 10} r="6" fill={color} className="building-marker" />
+                                                {isH && (
+                                                    <g>
+                                                        <rect x={b.x + b.w / 2 - 60} y={b.y - 36} width="120" height="28" rx="6" fill="rgba(0,0,0,0.85)" />
+                                                        <text x={b.x + b.w / 2} y={b.y - 18} textAnchor="middle" fill="#f1f5f9" fontSize="11" fontWeight="600" fontFamily="Inter, sans-serif">{b.name}</text>
+                                                    </g>
+                                                )}
+                                            </g>
+                                        );
+                                    })}
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="map-sidebar">
+                            {ROOMS.map(room => (
+                                <div key={room.id}
+                                    className={`room-card ${room.status} ${selectedRoom === room.id ? 'selected' : ''}`}
+                                    onClick={() => setSelectedRoom(room.id === selectedRoom ? null : room.id)}
+                                >
+                                    <div className="room-card-header">
+                                        <span className="room-name">{room.name}</span>
+                                        <span className={`room-status ${room.status}`}>
+                                            {room.status === 'available' ? '● Open' : room.status === 'moderate' ? '● Filling' : '● Full'}
+                                        </span>
+                                    </div>
+                                    <div className="room-building">{room.building} — {room.floor}</div>
+                                    <div className="room-meta">
+                                        <div className="room-meta-item"><UsersIcon /> {room.currentOccupancy}/{room.capacity}</div>
+                                        <div className="room-meta-item"><ThermIcon /> {room.temp}°C</div>
+                                        <div className="room-meta-item"><VolIcon /> {room.noise} dB</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        /* ===== LIVE CONDITIONS ===== */
+        function LiveConditions() {
+            const [conditions, setConditions] = useState({ temp: 22, noise: 32, occupancy: 45 });
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setConditions(prev => ({
+                        temp: Math.max(18, Math.min(30, prev.temp + (Math.random() - 0.5) * 1.5)),
+                        noise: Math.max(10, Math.min(80, prev.noise + (Math.random() - 0.5) * 6)),
+                        occupancy: Math.max(5, Math.min(100, prev.occupancy + (Math.random() - 0.5) * 8)),
+                    }));
+                }, 3000);
+                return () => clearInterval(interval);
+            }, []);
+
+            const cards = [
+                { icon: '🌡️', type: 'temp', label: 'Temperature', value: conditions.temp.toFixed(1) + '°', unit: 'Celsius', percent: ((conditions.temp - 15) / 20) * 100, low: '15°C', high: '35°C' },
+                { icon: '🔊', type: 'noise', label: 'Noise Level', value: conditions.noise.toFixed(0), unit: 'Decibels', percent: (conditions.noise / 80) * 100, low: 'Silent', high: 'Loud' },
+                { icon: '👥', type: 'occupancy', label: 'Occupancy Rate', value: conditions.occupancy.toFixed(0) + '%', unit: 'Capacity Used', percent: conditions.occupancy, low: 'Empty', high: 'Full' },
+            ];
+
+            return (
+                <section className="section" id="conditions">
+                    <div className="section-header">
+                        <div className="section-tag">📊 Live Monitoring</div>
+                        <h2 className="section-title">Room Conditions</h2>
+                        <p className="section-subtitle">Real-time environmental data from IoT sensors across campus study rooms.</p>
+                    </div>
+                    <div className="conditions-grid">
+                        {cards.map(card => (
+                            <div key={card.type} className="condition-card">
+                                <div className="condition-card-header">
+                                    <div className={`condition-icon-wrapper ${card.type}`}>{card.icon}</div>
+                                    <div className="condition-live-tag"><span className="dot"></span> Live</div>
+                                </div>
+                                <div className={`condition-value ${card.type}`}>{card.value}</div>
+                                <div className="condition-label">{card.label} — {card.unit}</div>
+                                <div className="gauge-bar">
+                                    <div className={`gauge-fill ${card.type}`} style={{ width: Math.min(100, Math.max(0, card.percent)) + '%' }}></div>
+                                </div>
+                                <div className="gauge-labels"><span>{card.low}</span><span>{card.high}</span></div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        }
+
+        /* ===== FOOTER ===== */
+        function Footer() {
+            return (
+                <footer className="footer">
+                    <p>&copy; 2026 <a href="#">StudySpot</a> — Smart Study Spot Finder. Built for students, by students.</p>
+                </footer>
+            );
+        }
+
+        /* ===== APP ===== */
+        function App() {
+            const [activeSection, setActiveSection] = useState('hero');
+            useEffect(() => {
+                const sections = ['hero', 'map', 'conditions'];
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => { if (entry.isIntersecting) setActiveSection(entry.target.id); });
+                }, { threshold: 0.3 });
+                sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+                return () => observer.disconnect();
+            }, []);
+
+            return (
+                <React.Fragment>
+                    <Navbar activeSection={activeSection} />
+                    <HeroSection />
+                    <CampusMap />
+                    <LiveConditions />
+                    <Footer />
+                </React.Fragment>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
